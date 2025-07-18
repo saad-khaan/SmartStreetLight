@@ -1,0 +1,165 @@
+<html><head>
+    <title>Pico Web Server</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" href="data:,">
+   
+    <title>Smart Lighting Dashboard</title>
+    <style>
+
+        /* 
+            Styling for the main body section of the user interface, choosing the font Arial, the flexbox layout and the background
+        */
+        body {
+            font-family: Arial, sans-serif; /* Choosing arial */
+            display: flex; /* The flexbot layout creates the giant box in the middle which is our main UI interface */
+            align-items: center; /* All items that will be later created will be aligned in the center*/
+            justify-content: center;
+            background-color: #f0f0f0;
+        }
+
+
+        /* 
+            Dashboard container which uses elements such as width, margin, padding to design the dashboard
+        */
+        .dashboard {
+            width: 80%; 
+            max-width: 1000px; 
+            margin: 40px;
+            padding: 40px; 
+            position: relative;
+            border: 2px solid #ffffff;
+            border-radius: 10px;
+            background-color: #ffffff;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+
+        h2, h3 {
+            font-size: 24px; 
+        }
+
+        p {
+            font-size: 20px;
+        }
+
+        .manual-override {
+            padding: 20px 40px; /* Increased padding for a larger button */
+            font-size: 24px; /* Larger font size for better visibility */
+            border-radius: 8px;
+            cursor: pointer;
+            outline: none;
+        }
+
+        /*
+            Sets the position for the manual override button, flexbox layout, and the position so it is set to the bottom right corner of the interface.
+        */
+        .override_position {
+            display: flex;
+            justify-content: flex-end; /* Align child elements (the button) to the right */
+            position: absolute;
+            bottom: 0; /* Adjusted to 0 to stick to the bottom */
+            right: 0; /* Adjusted to 0 to stick to the right */
+            width: 100%; /* Ensures the container stretches across the parent width */
+            padding: 20px; /* Adds some space inside the container, moving the button a bit inward from the corner */
+        }
+
+        .status-indicator {
+            display: flex;
+            justify-content: space-evenly;
+            position: fixed;
+            right: 20px;
+            top: 20px;
+        }
+
+        .status-indicator div {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            margin-left: 10px;
+        }
+        
+        .green_light {
+            background-color: #4CAF50;
+            right: 20px;
+        }
+
+        .yellow_light {
+            background-color: #FFEB3B;
+            right: 90px;
+        }
+
+        .red_light {
+            background-color: #F44396;
+            right: 160px;
+        }
+
+        .alerts {
+            margin-bottom: 10px;
+        }
+
+    </style>
+
+    <script>
+
+        function manual_override1() {
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", "/?redLED_pin=on", true);
+            xhr.send();
+        }
+        function manual_override2() {
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", "/?redLED2_pin=on", true);
+            xhr.send();
+        }
+
+        function updateStatus() {
+            var xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    var data = JSON.parse(xhr.responseText);
+                    document.getElementById("RedLEDStatus").innerHTML = data.RedLEDStatus;
+                    document.getElementById("RedLED2Status").innerHTML = data.RedLED2Status;
+                    document.getElementById("Temperature").innerHTML = data.Temperature;
+                }
+            };
+            xhr.open("GET", "/status", true);
+            xhr.send();
+        }
+        setInterval(updateStatus, 1000); // Refresh every 1 second
+    </script>
+    </head>
+    <body>
+    <div class="dashboard">
+        <div class="header">
+            <h2>Dashboard</h2>
+            <div class="status-indicator">
+                <div class="green_light"></div>
+                <div class="yellow_light"></div>
+                <div class="red_light"></div>
+        </div>
+    </div>
+
+<!-- Status container, including activity and manual override button-->
+    <div class="status">
+        <div class="activity">
+            <h2>Status:</h2>
+                <p>Lights 1 is: <strong id="RedLEDStatus">""" + redLED_status + """</strong></p>
+                <p>Lights 2 is: <strong id="RedLED2Status">""" + redLED2_status + """</strong></p>
+        </div>
+<!-- Alerts section, to be implemented later in our design. -->
+        <div class="alerts">
+            <h3>Alerts</h3>>
+            <p>Recorded Temperature: <strong id="Temperature">--</strong> °C</p>
+        </div>
+    </div>
+    <div class="override_position">
+            <button id="manual-override" onclick="manual_override1()">Light 1 Manual Override</button>
+            <button id="manual-override2" onclick="manual_override2()">Light 2 Manual Override</button>
+    </div>
+    </body>
+    </html>
